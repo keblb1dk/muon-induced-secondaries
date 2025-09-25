@@ -1,0 +1,11 @@
+# Ignore build artifacts
+build/
+
+
+
+# IDE / OS
+.vs/
+*.user
+*.suo
+Thumbs.db
+.DS_Store

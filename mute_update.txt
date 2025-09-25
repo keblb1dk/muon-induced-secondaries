@@ -1,0 +1,34 @@
+# ---------------------------------------------------------------
+# write full angle × energy lookup grid
+# ---------------------------------------------------------------
+        grid_file = os.path.join(
+            constants.get_directory(),
+            "underground",
+            "{0}_underground_flux_grid.txt".format(constants.get_lab()),
+        )
+
+        with open(grid_file, "w") as fgrid:
+            fgrid.write(
+                "Energy (MeV)  Zenith Angles (degrees)  Azimuthal Angles (degrees)\n"
+            )
+
+            if constants.get_overburden() == "flat":
+                # azimuth artificially fixed at 0.0
+                for j, zen in enumerate(constants.ANGLES_FOR_S_FLUXES):
+                    fgrid.write(f"Zenith={zen:.4f}, Azimuth=None\n")
+                    for ie, E in enumerate(constants.ENERGIES[E_th_i:]):
+                        fgrid.write(
+                            f"{E:.14f} {interp_result[ie, j]:.14e}\n"
+                        )
+
+            elif constants.get_overburden() == "mountain":
+                for j, zen in enumerate(constants.mountain.zenith):
+                    for iaz, az in enumerate(constants.mountain.azimuthal):
+                        fgrid.write(f"Zenith={zen:.4f}, Azimuth={az:.4f}\n")
+                        for ie, E in enumerate(constants.ENERGIES[E_th_i:]):
+                            fgrid.write(
+                                f"{E:.14f} {interp_result[j, iaz, ie]:.14e}\n"
+                            )
+
+        if constants.get_verbose() > 1:
+            print(f"Full underground flux grid written to {grid_file}.")

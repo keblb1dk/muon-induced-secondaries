@@ -1,0 +1,15 @@
+/run/initialize
+/vis/open
+/vis/viewer/set/style surface
+/vis/viewer/set/lineSegmentsPerCircle 50
+/vis/viewer/set/auxiliaryEdge true
+/vis/drawVolume
+/vis/scene/add/trajectories smooth
+/vis/scene/add/hits
+#/vis/filtering/trajectories/create/particleFilter
+#/vis/filtering/trajectories/particleFilter-0/add mu-
+#/vis/filtering/trajectories/particleFilter-0/add neutron
+/vis/scene/endOfEventAction accumulate 1000
+/vis/viewer/set/autoRefresh true
+/vis/viewer/flush
+/vis/viewer/set/background 0.95 0.95 0.95
