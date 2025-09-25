@@ -133,7 +133,7 @@ def compute_global_mean_intensity_weighted(mean_energy_file, flux_grid_file):
             if line.startswith('Zenith='):
                 # Save previous total using integration if exists
                 if current_zenith is not None and current_energies and current_intensities:
-                    total_flux = scii.simpson(current_intensities, current_energies)
+                    total_flux = scii.simpson(y = current_intensities,x =  current_energies)
                     angle_intensities[(current_zenith, current_azimuth)] = total_flux
                 
                 # Parse new angles
@@ -154,7 +154,7 @@ def compute_global_mean_intensity_weighted(mean_energy_file, flux_grid_file):
         
         
         if current_zenith is not None and current_energies and current_intensities:
-            total_flux = scii.simpson(current_intensities, current_energies)
+            total_flux = scii.simpson(y = current_intensities,x =  current_energies)
             angle_intensities[(current_zenith, current_azimuth)] = total_flux
     
     # Match intensities with mean energies (only use points that exist in both)
@@ -206,8 +206,8 @@ def compute_global_mean_intensity_weighted(mean_energy_file, flux_grid_file):
         az_sorted = np.array(data['az'])[az_sorted_idx]
         
         # Integrate over azimuth 
-        weighted_integral = scii.simpson(weighted_energy_az, x=np.radians(az_sorted))
-        intensity_integral = scii.simpson(intensity_az, x=np.radians(az_sorted))
+        weighted_integral = scii.simpson(y = weighted_energy_az, x=np.radians(az_sorted))
+        intensity_integral = scii.simpson(y = intensity_az, x=np.radians(az_sorted))
         
         zenith_values.append(zen)
         azimuth_integrated_weighted.append(weighted_integral)
@@ -220,8 +220,8 @@ def compute_global_mean_intensity_weighted(mean_energy_file, flux_grid_file):
     
     # Integrate over zenith with cos(zenith) weighting 
     # cos(zenith) is decreasing, so take absolute value 
-    total_weighted = abs(scii.simpson(azimuth_integrated_weighted, x=np.cos(np.radians(zenith_values))))
-    total_intensity = abs(scii.simpson(azimuth_integrated_intensity, x=np.cos(np.radians(zenith_values))))
+    total_weighted = abs(scii.simpson(y = azimuth_integrated_weighted, x=np.cos(np.radians(zenith_values))))
+    total_intensity = abs(scii.simpson(y = azimuth_integrated_intensity, x=np.cos(np.radians(zenith_values))))
     
     global_mean_gev = total_weighted / total_intensity
     
