@@ -18,7 +18,7 @@ The simulation models cosmic muons penetrating an underground laboratory situate
 
 ```
 muon-induced-secondaries/
-├── build/                          # Build directory for compilation
+├
 ├── src/                            # Source code files
 ├── include/                        # Header files  
 ├── energy_sampling/                # Input data files
