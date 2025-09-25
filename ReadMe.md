@@ -206,7 +206,7 @@ For MUTE-related issues, consult the official documentation: https://github.com/
 For Geant4 support, refer to the Geant4 User's Guide: https://geant4-userdoc.web.cern.ch/
 
 ## Authors
-[Dakota Keblbeck](https://geant4.web.cern.ch/)
+[Dakota Keblbeck](dakota_keblbeck@mines.edu)
 
 ## License
 
