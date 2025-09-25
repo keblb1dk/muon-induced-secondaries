@@ -205,6 +205,9 @@ For MUTE-related issues, consult the official documentation: https://github.com/
 
 For Geant4 support, refer to the Geant4 User's Guide: https://geant4-userdoc.web.cern.ch/
 
+## Authors
+[Dakota Keblbeck](https://geant4.web.cern.ch/)
+
 ## License
 
 This project builds upon the MUTE package and Geant4 toolkit. Please respect the licenses of these dependencies when using or redistributing this code.
