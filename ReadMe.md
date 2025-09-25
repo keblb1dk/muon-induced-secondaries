@@ -208,6 +208,9 @@ For MUTE-related issues, consult the official documentation: https://github.com/
 
 For Geant4 support, refer to the Geant4 User's Guide: https://geant4-userdoc.web.cern.ch/
 
+## Citation
+The current version can be cited with the [Zenodo DOI]([https://geant4.web.cern.ch/](https://doi.org/10.5281/zenodo.17196581))
+
 ## Authors
 [Dakota Keblbeck](dakota_keblbeck@mines.edu)
 
