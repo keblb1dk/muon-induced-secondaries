@@ -1,8 +1,9 @@
 cff-version: 1.1.0
 message: "If you use this software, please cite it as below."
-title: "keblb1dk/muon-induced-secondaries: Release v1.0.0"
+title: "muon-induced-secondaries: Release v1.0.0"
 version: v1.0.0
 date-released: 2025-09-25
+doi: 10.5281/zenodo.17196581
 authors:
   - family-names: Keblbeck
     given-names: Dakota
