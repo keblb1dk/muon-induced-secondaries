@@ -187,7 +187,7 @@ Replace files in `energy_sampling/` with your own data:
 - `Mountain_underground_flux_grid.txt` - Full energy-angle flux grid
 - `example_mountain_profile.txt` - mountain profile grid required by MUTE: (Theta, Azimuth, Slant Depth)
 
-When using custom data files, ensure you update the `PrimaryGeneratorAction.cc` file with the correct intensity and mean energy file names.
+When using custom data files, ensure you update the `PrimaryGeneratorAction.cc` file with the correct intensity and mean energy file names. Please look at the included example files to ensure your formatting is correct.
 
 
 ## Troubleshooting
