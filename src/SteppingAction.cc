@@ -49,8 +49,8 @@ SteppingAction::SteppingAction(const G4String& outputDir)
         fEscapedSecondaryData << "TrackID,EventID,CreationEnergy (MeV),ExitEnergy (MeV),"
             << "ExitX (mm),ExitY (mm),ExitZ (mm),"
             << "CreationX (mm),CreationY (mm),CreationZ (mm),"
-            << "ExitPx (),ExitPy (),ExitPz (),"
-            << "muonPx (),muonPy (),muonPz (),"
+            << "ExitPx,ExitPy,ExitPz,"
+            << "muonPx,muonPy,muonPz,"
             << "Depth (m),"
             << "TrackLength (mm),MuonTheta (deg),MuonPhi (deg),MuonInitialEnergy (GeV),creationProcess,secondaryName" << std::endl;
     }
@@ -147,7 +147,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step) {
 
     // Record new secondaries with boundary conditions
     // must be created in the rock volume
-    if (track->GetCurrentStepNumber() == 1 && volume->GetName() == "rockLV") {
+    if (track->GetCurrentStepNumber() == 1 && volume->GetName() == "rShell") {
         G4ThreeVector pos = step->GetPreStepPoint()->GetPosition();
 
         SecondaryTrackInfo info;
@@ -189,7 +189,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step) {
 
             G4double depth = 0.0;
             // straight-line distance from lab calculations
-                // for z <= labZ …. Below the top of the lab
+                // for z <= labZ â€¦. Below the top of the lab
                 // 1D distance from x faces
             if ((labX * m <= initialPos.x() || initialPos.x() <= -labX * m) &&
                 (-labY * m <= initialPos.y() && initialPos.y() <= labY * m) &&
