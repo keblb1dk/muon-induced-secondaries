@@ -21,7 +21,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     G4NistManager* nist = G4NistManager::Instance();
 
 
-    // Defining the rock composition for the Hideout and Quantum Lab
+    // Defining the rock composition for the Subatomic Particle Hideout
 
     G4Element* Si = nist->FindOrBuildElement("Si");
     G4Element* Ca = nist->FindOrBuildElement("Ca");
@@ -40,21 +40,47 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 
 
     G4double hideoutDensity = 2.6949673 * g / cm3;  // hideout rock density
-    G4Material* hideoutRock = new G4Material("hideoutRock", hideoutDensity, 10, kStateSolid);  // 12 components
+    G4Material* hideoutRock = new G4Material("hideoutRock", hideoutDensity, 10, kStateSolid);  // 10 components
 
     // Add elements with correct fractions
-    hideoutRock->AddElement(Si, 0.387775);  // silicon....0.362176
+    hideoutRock->AddElement(Si, 0.387775);  // silicon
     hideoutRock->AddElement(Ca, 0.002794);  // calcium
-    hideoutRock->AddElement(O, 0.524001891);  // oxygen....0.498402891
+    hideoutRock->AddElement(O, 0.524001891);  // oxygen
     hideoutRock->AddElement(C, 0.000417109);  // carbon
     hideoutRock->AddElement(Al, 0.058924);  // aluminum
     hideoutRock->AddElement(H, 0.000958);  // hydrogen
-    //hideoutRock->AddElement(K, 0.0165);  // potassium
-    //hideoutRock->AddElement(Na, 0.034698);  // sodium
     hideoutRock->AddElement(Mg, 0.010806);  // magnesium
     hideoutRock->AddElement(Fe, 0.01237);  // iron
     hideoutRock->AddElement(S, 0.001143);  // sulfur
     hideoutRock->AddElement(F, 0.000811);  // fluorine
+
+    // Soudan
+    G4double soudanDensity = 2.85 * g / cm3;  // soudan rock density
+    G4Material* soudanRock = new G4Material("soudanRock", soudanDensity, 10, kStateSolid);  // 10 components
+
+    // Add elements with correct fractions
+    soudanRock->AddElement(H, 0.00304);
+    soudanRock->AddElement(C, 0.00081); 
+    soudanRock->AddElement(O, 0.45467); 
+    soudanRock->AddElement(Na, 0.01874);
+    soudanRock->AddElement(Mg, 0.0397);
+    soudanRock->AddElement(Al, 0.08042); 
+    soudanRock->AddElement(Si, 0.23954); 
+    soudanRock->AddElement(K, 0.00334); 
+    soudanRock->AddElement(Ca, 0.06513); 
+    soudanRock->AddElement(Fe, 0.09461);  
+	
+	// Gran Sasso
+	G4double lngsDensity = 2.72 * g / cm3;  // lngs rock density
+    G4Material* lngsRock = new G4Material("lngsRock", lngsDensity, 8, kStateSolid);  // 8 components
+    lngsRock->AddElement(H, 0.0003);
+    lngsRock->AddElement(C, 0.1217); 
+    lngsRock->AddElement(O, 0.5079); 
+    lngsRock->AddElement(Mg, 0.0832);
+    lngsRock->AddElement(Al, 0.0063); 
+    lngsRock->AddElement(Si, 0.0105);  
+    lngsRock->AddElement(K, 0.001);  
+    lngsRock->AddElement(Ca, 0.2691); 
 
 
     
@@ -90,34 +116,58 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     G4VisAttributes* visGreen = new G4VisAttributes(G4Colour::Green());
 
 
-    // radii for the rock hemisphere
-    G4double innerRadiusRock = 0.0 * m;
-    G4double outerRadiusRock = 8.3 * m;
-
-    // Create the rock hemispherical shape
-    G4Sphere* rockHS = new G4Sphere("rockHS", innerRadiusRock, outerRadiusRock, startPhi, deltaPhi, startTheta, deltaTheta / 2);
-    G4LogicalVolume* rockLV = new G4LogicalVolume(rockHS, hideoutRock, "rockLV"); 
-    G4VPhysicalVolume* rockPV = new G4PVPlacement(0, G4ThreeVector(0, 0, 0), rockLV, "rockPV", worldLV, false, 0, true);
-    worldLV->SetVisAttributes(G4VisAttributes::GetInvisible());
-
-
-    G4VisAttributes* visRock = new G4VisAttributes(G4Colour(0.0, 0.0, 1.0, 0.2)); // red, 20% opaque
-    visRock->SetForceSolid(true);    // show as semi-transparent solid
-    visRock->SetForceAuxEdgeVisible(true); // draw edges so boundary is clear
-    rockLV->SetVisAttributes(visRock);
-    //visShell->SetForceSolid(true);
-
-    // create lab dimensions
-    G4double labX = 3.0 / 2. * m;
-    G4double labY = 5.0 / 2. * m;
-    G4double labZ = 3.0 / 2. * m;
-
-    G4VSolid* labCavity = new G4Box("lab", labX, labY, labZ);
-    G4LogicalVolume* boxLV = new G4LogicalVolume(labCavity, air, "labLV");
-    // place lab in rock volume
-    G4VPhysicalVolume* boxPV = new G4PVPlacement(0, G4ThreeVector(0, 0, 150. * cm), boxLV, "labPV", rockLV, false, 0, true); 
-    boxLV->SetVisAttributes(visGreen);
-
+    G4double labX = 3.049999 / 2. * m;
+    G4double labY = 5.199999 / 2. * m;
+    G4double labZ = 3.049999 / 2. * m;
+	
+	G4VSolid* b3S = new G4Box("lab", labX, labY, labZ);
+	G4LogicalVolume* boxLV = new G4LogicalVolume(b3S, air, "labLV");
+	G4VPhysicalVolume* boxPV = new G4PVPlacement(0, G4ThreeVector(0, 0, labZ), boxLV, "labPV", worldLV, false, 0, true);
+	boxLV->SetVisAttributes(visBlue);
+	
+	G4double detX = 1.0 / 2. * m;
+    G4double detY = 1.0 / 2. * m;
+    G4double detZ = 1.0 / 2. * nm;
+	
+	G4VSolid* detector = new G4Box("detector", detX, detY, detZ);
+	G4LogicalVolume* detLV = new G4LogicalVolume(detector, air, "detLV");
+	G4VPhysicalVolume* detPV = new G4PVPlacement(0, G4ThreeVector(0, 0, -labZ / 2 + detZ), detLV, "detPV", boxLV, false, 0, true);
+	detLV->SetVisAttributes(visRed);
+	
+	// Dimensions for the rectangular shell
+	G4double innerLengthX = 3.05 * m;
+	G4double innerLengthY = 5.2 * m;
+	G4double innerLengthZ = 3.05 * m;
+	
+	G4double thicknessTop = 5.0 * m;     // Thickness above the lab space
+	G4double thicknessSide = 5.0 * m;    // Thickness on sides
+	G4double thicknessBelow = 0.0 * m;   // No thickness below the lab space
+	
+	// Outer box dimensions
+	G4double outerLengthX = innerLengthX + 2.0 * thicknessSide;
+	G4double outerLengthY = innerLengthY + 2.0 * thicknessSide;
+	G4double outerLengthZ = innerLengthZ + thicknessTop; // Only add thickness to top
+	G4double innerRadius2 = 0.0 * m;
+	G4double outerRadius2 = 8.3 * m;
+	G4Sphere* rockSphere = new G4Sphere("rockSphere", innerRadius2, outerRadius2, startPhi, deltaPhi, startTheta, deltaTheta / 2);
+	G4LogicalVolume* rockSphereLV = new G4LogicalVolume(rockSphere, lngsRock, "rockSphere");
+	G4Box* innerBox = new G4Box("InnerBox", innerLengthX / 2, innerLengthY / 2,
+		innerLengthZ / 2);
+	G4SubtractionSolid* rectangularShell =
+		new G4SubtractionSolid("rShell", rockSphere, innerBox,
+			0, G4ThreeVector(0, 0, 3.05 / 2 * m));
+	  
+	// Define logical volume for the shell
+	G4LogicalVolume* shellLV = new G4LogicalVolume(rectangularShell, lngsRock, "rShell");
+	
+	// place the lab space on the equator
+	G4VPhysicalVolume* shellPV =
+		new G4PVPlacement(0, G4ThreeVector(0, 0, 0 * m), shellLV, "rShell", worldLV, false, 0, true);
+		
+	
+	G4VisAttributes* visShell = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0, 0.04)); // Red with 30% opacity
+	visShell->SetForceSolid(true);  // Ensure the hemisphere appears solid
+	shellLV->SetVisAttributes(visShell);
     
 
     return worldPV;
