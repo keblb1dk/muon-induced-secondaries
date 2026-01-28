@@ -65,7 +65,7 @@ For this option, if you already have MUTE installed, please first do
 pip uninstall mute
 ```
 
-**Alternative: Install Standard MUTE and Modify Manually**
+**2. Alternative: Install Standard MUTE and Modify Manually**
 
 If you prefer to use the standard MUTE package and apply modifications yourself:
 
