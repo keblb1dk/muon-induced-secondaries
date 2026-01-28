@@ -116,9 +116,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
     G4VisAttributes* visGreen = new G4VisAttributes(G4Colour::Green());
 
 
-    G4double labX = 3.049999 / 2. * m;
-    G4double labY = 5.199999 / 2. * m;
-    G4double labZ = 3.049999 / 2. * m;
+    G4double labX = 2.999999 / 2. * m;
+    G4double labY = 4.999999 / 2. * m;
+    G4double labZ = 2.999999 / 2. * m;
 	
 	G4VSolid* b3S = new G4Box("lab", labX, labY, labZ);
 	G4LogicalVolume* boxLV = new G4LogicalVolume(b3S, air, "labLV");
@@ -135,9 +135,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 	detLV->SetVisAttributes(visRed);
 	
 	// Dimensions for the rectangular shell
-	G4double innerLengthX = 3.05 * m;
-	G4double innerLengthY = 5.2 * m;
-	G4double innerLengthZ = 3.05 * m;
+	G4double innerLengthX = 3.0 * m;
+	G4double innerLengthY = 5.0 * m;
+	G4double innerLengthZ = 3.0 * m;
 	
 	G4double thicknessTop = 5.0 * m;     // Thickness above the lab space
 	G4double thicknessSide = 5.0 * m;    // Thickness on sides
@@ -155,7 +155,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 		innerLengthZ / 2);
 	G4SubtractionSolid* rectangularShell =
 		new G4SubtractionSolid("rShell", rockSphere, innerBox,
-			0, G4ThreeVector(0, 0, 3.05 / 2 * m));
+			0, G4ThreeVector(0, 0, 3.0 / 2 * m));
 	  
 	// Define logical volume for the shell
 	G4LogicalVolume* shellLV = new G4LogicalVolume(rectangularShell, lngsRock, "rShell");
