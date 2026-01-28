@@ -52,22 +52,34 @@ muon-induced-secondaries/
 
 ### 1. Install MUTE Package
 
-Install the MUTE package following the instructions at: https://github.com/wjwoodley/mute
+**Recommended: Install Modified MUTE Fork**
 
-### 2. Modify MUTE Source Code
+Install the modified MUTE package directly from the underground-energy-sampling branch:
+```bash
+pip install git+https://github.com/keblb1dk/mute.git@underground-energy-sampling
+```
 
-To enable flux grid output, you need to modify the MUTE source code:
+This fork includes the necessary modifications for flux grid output and angle-dependent energy sampling.
+For this option, if you already have MUTE installed, please first do
+'''
+pip uninstall mute
+'''
 
-1. Navigate to your MUTE installation directory (typically located at):
-   ```
-   Users/[username]/AppData/Local/Programs/Python/Python312/Lib/site-packages/mute/underground.py
-   ```
+**Alternative: Install Standard MUTE and Modify Manually**
 
-2. Open `underground.py` and find the `calc_u_e_spect()` function
+If you prefer to use the standard MUTE package and apply modifications yourself:
 
-3. Copy the code from `mute_update.txt` in this project and paste it at the bottom of the `calc_u_e_spect()` function, before the final `return u_e_spect` statement
+1. Install the standard MUTE package following the instructions at: https://github.com/wjwoodley/mute
 
-This modification enables MUTE to output the full flux grid needed for angle-dependent energy sampling.
+2. Modify the MUTE source code to enable flux grid output:
+   - Navigate to your MUTE installation directory (typically located at):
+```
+     Users/[username]/AppData/Local/Programs/Python/Python312/Lib/site-packages/mute/underground.py
+```
+   - Open `underground.py` and find the `calc_u_e_spect()` function
+   - Copy the code from `mute_update.txt` in this project and paste it at the bottom of the `calc_u_e_spect()` function, before the final `return u_e_spect` statement
+
+Note: The manual modification approach requires updating the code each time MUTE is reinstalled or updated.
 
 ### 3. Build the Geant4 Simulation
 
