@@ -210,7 +210,7 @@ For Geant4 support, refer to the Geant4 User's Guide: https://geant4-userdoc.web
 
 ## Citation
 The current version can be cited with the [Zenodo DOI](https://doi.org/10.5281/zenodo.17196581).
-Please also cite [arXiv](https://doi.org/10.48550/arXiv.2510.06150) for this work.
+Please also cite the APS PRD [article](https://doi.org/10.1103/7n8l-pr2g) for this work.
 
 The citations for MUTE and Geant4 can be found at [MUTE](https://github.com/wjwoodley/mute) and [Geant4](https://geant4.web.cern.ch/).
 
