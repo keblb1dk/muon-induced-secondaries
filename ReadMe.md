@@ -61,9 +61,9 @@ pip install git+https://github.com/keblb1dk/mute.git@underground-energy-sampling
 
 This fork includes the necessary modifications for flux grid output and angle-dependent energy sampling.
 For this option, if you already have MUTE installed, please first do
-'''bash
+```bash
 pip uninstall mute
-'''
+```
 
 **Alternative: Install Standard MUTE and Modify Manually**
 
