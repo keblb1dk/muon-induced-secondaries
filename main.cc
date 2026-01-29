@@ -2,7 +2,8 @@
 #include "G4UImanager.hh"
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
-#include "Shielding.hh"
+//#include "Shielding.hh"
+#include "ShieldingOpt4.hh"  // option to use Shielding and EMO4
 #include "DetectorConstruction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
@@ -21,7 +22,8 @@ int main(int argc, char** argv) {
 
     // Set mandatory initialization classes
     runManager->SetUserInitialization(new DetectorConstruction());
-    runManager->SetUserInitialization(new Shielding());
+    //runManager->SetUserInitialization(new Shielding());
+    runManager->SetUserInitialization(new ShieldingOpt4());
 
     // Initialize the visualization (only needed for GUI mode)
     //G4VisManager* visManager = nullptr;
