@@ -1,4 +1,5 @@
 #include "RunAction.hh"
+#include "SteppingAction.hh"
 #include "G4Run.hh"
 #include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
@@ -21,9 +22,22 @@ void RunAction::BeginOfRunAction(const G4Run*) {
     fPreviousEventCount = 0;
     fStartTime = std::chrono::high_resolution_clock::now();
     G4cout << "Starting new run..." << G4endl;
+	
+	 SteppingAction* steppingAction =
+		(SteppingAction*)G4RunManager::GetRunManager()->GetUserSteppingAction();
+	 if (steppingAction) {
+		 steppingAction->BeginOfRunAction();
+	 }
 }
 
 void RunAction::EndOfRunAction(const G4Run* run) {
+    // Flush SteppingAction buffer before ending the run
+    SteppingAction* steppingAction =
+        (SteppingAction*)G4RunManager::GetRunManager()->GetUserSteppingAction();
+    if (steppingAction) {
+        steppingAction->EndOfRunAction();
+    }
+
     G4int nEvents = run->GetNumberOfEvent();
     auto endTime = std::chrono::high_resolution_clock::now();
     auto duration = endTime - fStartTime;
