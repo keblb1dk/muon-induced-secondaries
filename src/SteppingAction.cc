@@ -1,3 +1,4 @@
+#include "DetectorConstruction.hh"
 #include "SteppingAction.hh"
 #include "RunAction.hh"
 #include "G4Step.hh"
@@ -24,36 +25,9 @@ SteppingAction::SteppingAction(const G4String& outputDir)
     : G4UserSteppingAction(),
     fCurrentTrackID(-1),
     fOutputDir(outputDir),
+	fFileOpened(false),
     bufferSize(10000) {  // Adjust buffer size as needed
-
-    std::filesystem::path dirPath(fOutputDir.data());
-    std::filesystem::create_directories(dirPath);
-
-    size_t pos = fOutputDir.find_last_of('_');
-    G4String coreNum = "";
-    if (pos != G4String::npos) {
-        coreNum = "_" + fOutputDir.substr(pos + 1);
-    }
-
-    // Construct the file path
-    G4String filePath = fOutputDir + "/escaped_secondaries.csv";
-    fEscapedSecondaryData.open(filePath, std::ios::out | std::ios::app);
-
-    if (!fEscapedSecondaryData.is_open()) {
-        G4Exception("SteppingAction::SteppingAction", "OutputError",
-            FatalException,
-            G4String("Could not open output file: " + filePath).c_str());
-    }
-    // write header of csv if empty
-    if (fEscapedSecondaryData.tellp() == 0) {
-        fEscapedSecondaryData << "TrackID,EventID,CreationEnergy (MeV),ExitEnergy (MeV),"
-            << "ExitX (mm),ExitY (mm),ExitZ (mm),"
-            << "CreationX (mm),CreationY (mm),CreationZ (mm),"
-            << "ExitPx,ExitPy,ExitPz,"
-            << "muonPx,muonPy,muonPz,"
-            << "Depth (m),"
-            << "TrackLength (mm),MuonTheta (deg),MuonPhi (deg),MuonInitialEnergy (GeV),creationProcess,secondaryName" << std::endl;
-    }
+	
 }
 
 SteppingAction::~SteppingAction() {
@@ -61,6 +35,48 @@ SteppingAction::~SteppingAction() {
     if (fEscapedSecondaryData.is_open()) {
         fEscapedSecondaryData.close();
     }
+}
+
+void SteppingAction::BeginOfRunAction() {
+	
+	
+	
+    // Open the file at the beginning of the run, after lab name has been set
+    if (!fFileOpened) {
+        DetectorConstruction* detector = DetectorConstruction::GetInstance();
+        G4String labName = "default";
+        if (detector) {
+            labName = detector->GetLabName();
+        }
+
+        G4String baseDir = fOutputDir;
+        G4String filename = baseDir + "/escaped_secondary_" + labName + ".csv";
+
+        fEscapedSecondaryData.open(filename, std::ios::out | std::ios::app);
+
+        if (!fEscapedSecondaryData.is_open()) {
+        G4Exception("SteppingAction::SteppingAction", "OutputError",
+            FatalException,
+            G4String("Could not open output file: " + filename).c_str());
+		}
+		// write header of csv if empty
+		if (fEscapedSecondaryData.tellp() == 0) {
+			fEscapedSecondaryData << "TrackID,EventID,CreationEnergy (MeV),ExitEnergy (MeV),"
+				<< "ExitX (mm),ExitY (mm),ExitZ (mm),"
+				<< "CreationX (mm),CreationY (mm),CreationZ (mm),"
+				<< "ExitPx,ExitPy,ExitPz,"
+				<< "muonPx,muonPy,muonPz,"
+				<< "Depth (m),"
+				<< "TrackLength (mm),MuonTheta (deg),MuonPhi (deg),MuonInitialEnergy (GeV),creationProcess,secondaryName" << std::endl;
+		}
+
+        fFileOpened = true;
+    }
+}
+
+void SteppingAction::EndOfRunAction() {
+    FlushBuffer();  // Write any remaining buffered data
+    G4cout << "Flushed remaining buffer data at end of run" << G4endl;
 }
 
 void SteppingAction::FlushBuffer() {
@@ -147,7 +163,7 @@ void SteppingAction::UserSteppingAction(const G4Step* step) {
 
     // Record new secondaries with boundary conditions
     // must be created in the rock volume
-    if (track->GetCurrentStepNumber() == 1 && volume->GetName() == "rShell") {
+    if (track->GetCurrentStepNumber() == 1 && volume->GetName() == "rockLV") {
         G4ThreeVector pos = step->GetPreStepPoint()->GetPosition();
 
         SecondaryTrackInfo info;
@@ -176,9 +192,9 @@ void SteppingAction::UserSteppingAction(const G4Step* step) {
         const G4VProcess* creatorProcess = track->GetCreatorProcess();
 
         //define lab dimensions
-        G4double labX = 3.0 / 2.0;
-        G4double labY = 5.0 / 2.0;
-        G4double labZ = 3.0;
+        G4double labX = 3.05 / 2.0;
+        G4double labY = 5.2 / 2.0;
+        G4double labZ = 3.05;
 
         try {
             const G4ThreeVector& initialPos = trackIter->second.initialPos;
