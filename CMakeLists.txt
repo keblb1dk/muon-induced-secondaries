@@ -12,7 +12,9 @@ add_executable(MuSecondaries
 	src/PrimaryGeneratorAction.cc
 	src/RunAction.cc
 	src/SteppingAction.cc
-	src/EventAction.cc)
+	src/EventAction.cc
+	src/PrimaryGeneratorMessenger.cc
+	src/DetectorMessenger.cc)
 
 target_include_directories(MuSecondaries PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
