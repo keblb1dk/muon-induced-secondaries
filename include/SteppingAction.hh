@@ -47,6 +47,8 @@ public:
     SteppingAction(const G4String& outputDir);
     virtual ~SteppingAction();
     virtual void UserSteppingAction(const G4Step*);
+	void BeginOfRunAction();
+    void EndOfRunAction();
 
 private:
     G4String fOutputDir;
@@ -57,6 +59,8 @@ private:
     std::unordered_map<G4int, SecondaryTrackInfo> fSecondaryTracks;
     std::ofstream fEscapedSecondaryData;
     G4double depth = 0.0;
+	
+	G4bool fFileOpened;
 
     // Buffered data storage
     std::vector<EscapedSecondaryData> dataBuffer;
