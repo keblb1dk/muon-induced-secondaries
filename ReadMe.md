@@ -1,6 +1,6 @@
 # Muon-Induced Secondary Particle Simulation
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17196581.svg)](https://doi.org/10.5281/zenodo.17196581)
+[![DOI](https://doi.org/10.5281/zenodo.18408949.svg)](https://doi.org/10.5281/zenodo.18408949)
 
 
 This project uses [Geant4](https://geant4.web.cern.ch/) to simulate muon-induced secondary particles in underground laboratories. It combines realistic muon flux distributions from the [MUTE package](https://github.com/wjwoodley/mute) with Monte Carlo particle tracking to study secondary particle production in underground detector environments.
@@ -225,7 +225,7 @@ For MUTE-related issues, consult the official documentation: https://github.com/
 For Geant4 support, refer to the Geant4 User's Guide: https://geant4-userdoc.web.cern.ch/
 
 ## Citation
-The current version can be cited with the [Zenodo DOI](https://doi.org/10.5281/zenodo.17196581).
+The current version can be cited with the [Zenodo DOI](https://doi.org/10.5281/zenodo.18408949).
 Please also cite the APS PRD [article](https://doi.org/10.1103/7n8l-pr2g) for this work.
 
 The citations for MUTE and Geant4 can be found at [MUTE](https://github.com/wjwoodley/mute) and [Geant4](https://geant4.web.cern.ch/).
