@@ -80,7 +80,7 @@ If you prefer to use the standard MUTE package and apply modifications yourself:
      Users/[username]/AppData/Local/Programs/Python/Python312/Lib/site-packages/mute/underground.py
 ```
    - Open `underground.py` and find the `calc_u_e_spect()` function
-   - Copy the code from `mute_update.txt` in this project and paste it at the bottom of the `calc_u_e_spect()` function, before the final `return u_e_spect` statement
+   - Copy the code from `mute_update.txt` in this project and completely replace the calc_u_e_spect() function and add the two new functions, calc_u_e_cdf_sampling() and calc_u_e_sampling, directly below it.
 
 Note: The manual modification approach requires updating the code each time MUTE is reinstalled or updated.
 
