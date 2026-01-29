@@ -14,7 +14,7 @@ The DetectorConstruction allows the user to set the density of the rock and to s
 
 - set density (default units are g/cm3)
   ```/detector/setDensity value```
-- set composition using files in Rock Compostion Data
+- set composition using files in Rock Composition Data
   ```/detector/setRockComp labname_rock.txt```
 
 ## PrimaryGeneratorAction
