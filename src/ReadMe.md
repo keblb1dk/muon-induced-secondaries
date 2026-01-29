@@ -13,7 +13,7 @@ This command **must** come before the ```/run/initialize``` command, and can onl
 The DetectorConstruction allows the user to set the density of the rock and to set the rock chemical composition
 
 - set density (default units are g/cm3)
-  ```/detector/setDensity value```
+  ```/detector/setRockDensity value```
 - set composition using files in Rock Composition Data
   ```/detector/setRockComp labname_rock.txt```
 
