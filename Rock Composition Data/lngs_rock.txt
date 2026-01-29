@@ -1,0 +1,11 @@
+# LNGS (Gran Sasso) Rock Composition
+# Density: 2.72 g/cm3
+
+H 0.0003
+C 0.1217
+O 0.5079
+Mg 0.0832
+Al 0.0063
+Si 0.0105
+K 0.001
+Ca 0.2691

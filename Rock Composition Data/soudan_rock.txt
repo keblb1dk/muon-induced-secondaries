@@ -1,0 +1,13 @@
+# Soudan Mine Rock Composition
+# Density: 2.85 g/cm3
+
+H 0.00304
+C 0.00081
+O 0.45467
+Na 0.01874
+Mg 0.0397
+Al 0.08042
+Si 0.23954
+K 0.00334
+Ca 0.06513
+Fe 0.09461

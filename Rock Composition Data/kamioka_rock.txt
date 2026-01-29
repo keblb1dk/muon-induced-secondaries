@@ -1,0 +1,10 @@
+# Kamioka Rock Composition
+# Density: 2.7 g/cm3
+
+O 0.39710838
+Na 0.0001018
+Mg 0.0061093
+Al 0.06109357
+Si 0.1730984
+Ca 0.28510335
+Fe 0.0773852
