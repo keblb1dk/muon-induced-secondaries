@@ -1,6 +1,304 @@
-# ---------------------------------------------------------------
-# write full angle × energy lookup grid
-# ---------------------------------------------------------------
+def calc_u_e_spect(output=None, file_name="", force=False, write_sampling=False, use_mean_energies=False, **kwargs):
+    """
+    Calculate an underground energy spectrum in units of [(cm^2 s sr MeV)^-1].
+
+    Parameters
+    ----------
+    output : bool, optional (default: taken from constants.get_output())
+        If True, an output file will be created to store the results.
+
+    file_name : str, optional (default: constructed from input parameters)
+        The name of the file in which to store the results. If output is False or None, this is ignored.
+
+    force : bool
+        If True, force the calculation of new matrices and the creation of new directories if required.
+
+    Other Parameters
+    -----------------
+    u_fluxes : NumPy ndarray, optional (default: calcaulated from default surface fluxes and survival probabilities)
+        An underground flux tensor of shape (28, 91, 20).
+
+    s_fluxes : NumPy ndarray, optional (default: taken from surface.load_s_fluxes_from_file())
+        A surface flux matrix of shape (91, 20).
+
+    survival_probability_tensor : NumPy ndarray, optional (default: taken from propagation.load_survival_probability_tensor_from_file())
+        A survival probability tensor of shape (91, 28, 91).
+
+    E_th : float, optional (default: 0)
+        An energy threshold in [MeV].
+
+    model : str in {"daemonflux", "mceq"}, optional (default: "mceq")
+        The model to use to calculate surface fluxes. MCeq provides the option to specify primary, interaction, and density model keyword arguments, while daemonflux uses "gsf" as the primary model and "ddm" as the interaction model. The default model will be changed to "daemonflux" in v3.1.0. This parameter is case-insensitive.
+
+    return_error : bool, optional (default: False)
+        If True, if model == "daemonflux", return the error on the surface fluxes instead of the surface fluxes.
+
+    primary_model : str in {"gsf", "hg", "h3a", "h4a", "gh", "gst3", "gst4", "zs", "zsp", "pl27"} or tuple, optional (default: "gsf")
+        The primary flux model to use in MCEq. This parameter is case-insensitive. Options:
+        gsf  = GlobalSplineFitBeta
+        hg   = HillasGaisser2012 (H3a)
+        h3a  = HillasGaisser2012 (H3a)
+        h4a  = HillasGaisser2012 (H4a)
+        gh   = GaisserHonda
+        gst3 = GaisserStanevTilav (3-gen)
+        gst4 = GaisserStanevTilav (4-gen)
+        zs   = Zatsepin-Sokolskaya (Default)
+        zsp  = Zatsepin-Sokolskaya (PAMELA)
+        pl27 = SimplePowerlaw27
+        Alternatively, this can be set with a tuple. For example: (pm.GaisserStanevTilav, "3-gen").
+
+    interaction_model : str, optional (default: "sibyll23c")
+        The hadronic interaction model to use in MCEq. See the Tutorial or MCEq documentation for a list of options. This parameter is case-insensitive.
+
+    atmosphere : {"corsika", "msis00"}, optional (default: "corsika")
+        The atmospheric model to use in MCEq. For US Standard Atmosphere, use "corsika". For seasonal variations, use "msis00". This parameter is case-insensitive.
+
+    location : str or tuple, optional (default: "USStd")
+        The name of the location for which to calculate the surface fluxes. See the Tutorial or MCEq documentation for a list of options. Alternatively, this can be set with a tuple of shape (latitude, longitude). This parameter is case-sensitive.
+
+    month : str, optional (default: None)
+        The month for which to calculate the surface fluxes. For US Standard Atmosphere, use None. For seasonal variations, use the month name. This parameter is case-sensitive.
+
+    Returns
+    -------
+    u_e_spect : NumPy ndarray
+        An array containing the underground energy spectrum. The length will be that of constants.ENERGIES, and the spectrum will be in units of [(cm^2 s sr MeV)^-1].
+    """
+
+    # Check values
+
+    constants._check_constants()
+
+    if output is None:
+        output = constants.get_output()
+
+    # Get the keyword arguments
+
+    u_fluxes = kwargs.get("u_fluxes", None)
+    s_fluxes = kwargs.get("s_fluxes", None)
+    survival_probability_tensor = kwargs.get("survival_probability_tensor", None)
+    angles = kwargs.get("angles", constants.angles)
+    depths = kwargs.get("depths", constants.slant_depths)
+    E_th = kwargs.get("E_th", 0)
+
+    # Ensure the arguments are in the proper form
+    # Turn the energy threshold value in [MeV] into an index in order to slice the u_fluxes matrix and the energy grid properly when integrating
+
+    angles = np.atleast_1d(angles)
+    depths = np.atleast_1d(depths)
+    E_th_i = np.argmin(np.abs(constants.ENERGIES - E_th))
+
+    if E_th_i != 0 and constants.get_verbose() > 1:
+        print(
+            "Setting energy threshold to {0:1.3f} MeV (the closest value in the energy grid to {1} MeV).".format(
+                constants.ENERGIES[E_th_i], E_th
+            )
+        )
+
+    # Calculate the underground fluxes
+    # Get the surface flux matrix and survival probability tensor
+    # If the calculation functions have to be run through the getter functions, the global output setting is used
+
+    if u_fluxes is None:
+
+        if constants.get_verbose() > 1:
+            print("Calculating underground fluxes.")
+
+        if s_fluxes is None:
+
+            s_fluxes = surface.load_s_fluxes_from_file(**kwargs)
+
+        if survival_probability_tensor is None:
+
+            survival_probability_tensor = (
+                propagation.load_survival_probability_tensor_from_file(force=force)
+            )
+
+        # Check that the surface flux matrix and survival probability tensor have been loaded properly
+
+        if s_fluxes is None or survival_probability_tensor is None:
+
+            raise Exception(
+                "Underground intensities not calculated. The surface flux matrix or survival probability tensor was not provided or loaded correctly."
+            )
+
+        assert (
+            s_fluxes.shape[0] == survival_probability_tensor.shape[2]
+        ), f"The surface flux matrix and survival probability tensor must both use the default MUTE energy grid, which has length {len(constants.ENERGIES)}, not {s_fluxes.shape[0]} or {survival_probability_tensor.shape[2]}."
+
+        # Perform the convolution
+
+        u_fluxes = _do_convolution(s_fluxes, survival_probability_tensor)
+
+        if constants.get_verbose() > 1:
+            print("Finished calculating underground fluxes.")
+
+    # Check that the underground flux tensor has the correct shape
+
+    required_shape = (
+        len(constants._SLANT_DEPTHS),
+        len(constants.ENERGIES),
+        len(constants.ANGLES_FOR_S_FLUXES),
+    )
+
+    assert (
+        u_fluxes.shape == required_shape
+    ), f"The underground flux tensor does not have the correct shape. The shape must be {required_shape}, not {u_fluxes.shape}. Set full_tensor to True in the underground.calc_u_fluxes() function in order to return a tensor of shape {required_shape}. Alternatively, try passing a surface flux matrix and / or a survival probability tensor in as parameters."
+
+    # Calculate the underground energy spectrum for flat overburdens
+
+    if constants.get_overburden() == "flat":
+
+        interp_result = np.zeros(
+            (len(constants.ENERGIES[E_th_i:]), len(constants.ANGLES_FOR_S_FLUXES))
+        )
+
+        with np.errstate(all="ignore"):
+
+            # Create an interpolator function
+
+            interpolator = sciint.RegularGridInterpolator(
+                (
+                    constants._SLANT_DEPTHS,
+                    constants.ENERGIES,
+                    constants.ANGLES_FOR_S_FLUXES,
+                ),
+                np.log(u_fluxes),
+                method="linear",
+                bounds_error=False,
+                fill_value=-np.inf,
+            )
+
+            # Loop over the zenith angles to specify the slant depth
+
+            for j in range(len(constants.ANGLES_FOR_S_FLUXES)):
+
+                interp_result[:, j] = np.nan_to_num(
+                    np.exp(
+                        interpolator(
+                            (
+                                constants.get_vertical_depth()
+                                / np.cos(np.radians(constants.ANGLES_FOR_S_FLUXES[j])),
+                                constants.ENERGIES[E_th_i:],
+                                constants.ANGLES_FOR_S_FLUXES[j],
+                            )
+                        )
+                    )
+                )
+
+        # Integrate over the zenith and azimuthal angles to calculate the energy spectrum
+
+        u_e_spect = (
+            2
+            * np.pi
+            * abs(
+                scii.simpson(
+                    interp_result,
+                    x=np.cos(np.radians(constants.ANGLES_FOR_S_FLUXES)),
+                    axis=1,
+                )
+            )
+        )
+
+    # Calculate the underground energy spectrum for mountains
+
+    elif constants.get_overburden() == "mountain":
+
+        interp_result = np.zeros(
+            (
+                len(constants.mountain.zenith),
+                len(constants.mountain.azimuthal),
+                len(constants.ENERGIES[E_th_i:]),
+            )
+        )
+
+        with np.errstate(all="ignore"):
+
+            # Create an interpolator function
+
+            interpolator = sciint.RegularGridInterpolator(
+                (
+                    constants._SLANT_DEPTHS,
+                    constants.ENERGIES,
+                    constants.ANGLES_FOR_S_FLUXES,
+                ),
+                np.log(u_fluxes),
+                method="linear",
+                bounds_error=False,
+                fill_value=-np.inf,
+            )
+
+            # Loop over the zenith and azimuthal angles to specify the slant depth index
+            # Interpolate the underground fluxes to the slant depths and zenith angles
+            # Implicitly reshape the resulting tensor so it is in terms of zenith and azimuthal angle
+
+            for j in range(len(constants.mountain.zenith)):
+
+                for az in range(len(constants.mountain.azimuthal)):
+
+                    interp_result[j, az, :] = np.nan_to_num(
+                        np.exp(
+                            interpolator(
+                                (
+                                    constants.mountain.slant_depths[j, az],
+                                    constants.ENERGIES[E_th_i:],
+                                    constants.mountain.zenith[j],
+                                )
+                            )
+                        )
+                    )
+
+        # Integrate over the zenith and azimuthal angles to calculate the energy spectrum
+
+        u_e_spect = scii.simpson(
+            abs(
+                scii.simpson(
+                    interp_result,
+                    x=np.cos(np.radians(constants.mountain.zenith)),
+                    axis=0,
+                )
+            ),
+            x=np.radians(constants.mountain.azimuthal),
+            axis=0,
+        )
+
+    # Write the results to the file
+
+    if output:
+
+        constants._check_directory(
+            os.path.join(constants.get_directory(), "underground"), force=force
+        )
+
+        if file_name == "" or not isinstance(file_name, str):
+
+            file_name = os.path.join(
+                constants.get_directory(),
+                "underground",
+                "{0}_underground_energy_spectrum.txt".format(constants.get_lab()),
+            )
+
+        file_out = open(file_name, "w")
+
+        for i in range(len(constants.ENERGIES[E_th_i:])):
+
+            file_out.write(
+                "{0:1.14f} {1:1.14e}\n".format(
+                    constants.ENERGIES[E_th_i + i], u_e_spect[i]
+                )
+            )
+
+        file_out.close()
+
+        if constants.get_verbose() > 1:
+
+            print(f"Underground energy spectrum written to {file_name}.")
+
+    # Return the underground energy spectrum
+
+        # ---------------------------------------------------------------
+        # write full angle × energy lookup grid
+        # ---------------------------------------------------------------
         grid_file = os.path.join(
             constants.get_directory(),
             "underground",
@@ -32,3 +330,283 @@
 
         if constants.get_verbose() > 1:
             print(f"Full underground flux grid written to {grid_file}.")
+    
+
+    # ---------------------------------------------------------------
+    # Optionally compute underground energy sampling files
+    # ---------------------------------------------------------------
+    if write_sampling:
+
+        underground_dir = os.path.join(
+            constants.get_directory(), "underground"
+        )
+
+        if use_mean_energies:
+            # Mean-energy sampling (single energy per angle)
+            sampling_file = os.path.join(
+                underground_dir,
+                f"{constants.get_lab()}_underground_mean_energies.txt"
+            )
+
+            calc_u_e_sampling(grid_file, sampling_file)
+
+            if constants.get_verbose() > 1:
+                print(
+                    f"Underground mean-energy sampling file written to {sampling_file}."
+                )
+
+        else:
+            # Full CDF sampling (energy distributions per angle)
+            cdf_file = os.path.join(
+                underground_dir,
+                f"{constants.get_lab()}_underground_energy_CDFs.txt"
+            )
+
+            calc_u_e_cdf_sampling(grid_file, cdf_file)
+
+            if constants.get_verbose() > 1:
+                print(
+                    f"Underground energy CDF sampling file written to {cdf_file}."
+                )
+
+
+
+    return u_e_spect
+
+
+# Calculate underground CDF energy sampling file
+def calc_u_e_cdf_sampling(grid_file, output_file):
+    """
+    Compute underground muon energy cumulative distribution functions (CDFs)
+    for each (zenith, azimuth) bin from the full underground flux grid written
+    by calc_u_e_spect().
+
+    The resulting CDFs can be used for inverse-transform sampling of muon
+    energies conditioned on arrival direction.
+
+    Parameters
+    ----------
+    grid_file : str
+        Path to the underground flux grid written by calc_u_e_spect().
+
+    output_file : str
+        Path where the CDF sampling file will be written.
+
+    Produces
+    --------
+    A human-readable text file with the structure:
+
+        Zenith=XX.XXXX, Azimuth=YY.YYYY
+        Energy(GeV)   CDF
+        ...
+
+    where the CDF is normalized such that:
+        CDF(E_min) = 0
+        CDF(E_max) = 1
+    """
+
+    with open(grid_file, "r") as f:
+        lines = f.readlines()
+
+    # Storage for current angular bin
+    current_zenith = None
+    current_azimuth = None
+    energies = []
+    intensities = []
+
+    # Open output file
+    with open(output_file, "w") as fout:
+
+        # Write header
+        fout.write("# Underground muon energy CDFs\n")
+        fout.write("# Energy units: GeV\n")
+        fout.write("# CDFs are normalized such that CDF(E_min)=0 and CDF(E_max)=1\n")
+        fout.write("# For each (zenith, azimuth), the CDF gives P(E_mu <= E | theta, phi)\n\n")
+
+        for line in lines:
+            line = line.strip()
+
+            # Skip empty lines and column headers
+            if not line or line.startswith("Energy"):
+                continue
+
+            # New angular bin encountered
+            if line.startswith("Zenith="):
+
+                # Process the previous angular bin
+                if energies and np.trapz(intensities, energies) > 0:
+
+                    energies_arr = np.array(energies)
+                    intensities_arr = np.array(intensities)
+
+                    # Normalize intensities to form a PDF
+                    norm_int = intensities_arr / np.trapz(
+                        intensities_arr, energies_arr
+                    )
+
+                    # Construct CDF via cumulative integration
+                    cdf = np.zeros_like(norm_int)
+                    for i in range(1, len(energies_arr)):
+                        cdf[i] = np.trapz(
+                            norm_int[: i + 1], energies_arr[: i + 1]
+                        )
+
+                    # Explicitly enforce numerical endpoints
+                    cdf[0] = 0.0
+                    cdf[-1] = 1.0
+
+                    # Write CDF block
+                    az_str = (
+                        "None"
+                        if current_azimuth is None
+                        else f"{current_azimuth:.4f}"
+                    )
+                    fout.write(
+                        f"Zenith={current_zenith:.4f}, Azimuth={az_str}\n"
+                    )
+                    fout.write("Energy(GeV)   CDF\n")
+
+                    for E_MeV, F in zip(energies_arr, cdf):
+                        fout.write(
+                            f"{E_MeV / 1000.0:.14f} {F:.14f}\n"
+                        )
+
+                    fout.write("\n")
+
+                # Parse new angular bin
+                parts = line.split(", ")
+                current_zenith = float(parts[0].split("=")[1])
+
+                az_str = parts[1].split("=")[1]
+                current_azimuth = None if az_str == "None" else float(az_str)
+
+                energies = []
+                intensities = []
+
+            else:
+                # Energy–intensity line
+                try:
+                    e, I = line.split()
+                    energies.append(float(e))
+                    intensities.append(float(I))
+                except ValueError:
+                    pass
+
+        # Process the final angular bin
+        if energies and np.trapz(intensities, energies) > 0:
+
+            energies_arr = np.array(energies)
+            intensities_arr = np.array(intensities)
+
+            norm_int = intensities_arr / np.trapz(
+                intensities_arr, energies_arr
+            )
+
+            cdf = np.zeros_like(norm_int)
+            for i in range(1, len(energies_arr)):
+                cdf[i] = np.trapz(
+                    norm_int[: i + 1], energies_arr[: i + 1]
+                )
+
+            cdf[0] = 0.0
+            cdf[-1] = 1.0
+
+            az_str = (
+                "None"
+                if current_azimuth is None
+                else f"{current_azimuth:.4f}"
+            )
+            fout.write(
+                f"Zenith={current_zenith:.4f}, Azimuth={az_str}\n"
+            )
+            fout.write("Energy(GeV)   CDF\n")
+
+            for E_MeV, F in zip(energies_arr, cdf):
+                fout.write(
+                    f"{E_MeV / 1000.0:.14f} {F:.14f}\n"
+                )
+
+            fout.write("\n")
+
+
+
+# Calculate underground energy sampling file(s)
+def calc_u_e_sampling(grid_file, output_file):
+    """
+    Compute mean underground muon energy for each (zenith, azimuth) bin
+    from the full underground flux grid written by calc_u_e_spect().
+
+    Parameters
+    ----------
+    grid_file : str
+        Path to the flux grid written by calc_u_e_spect.
+
+    output_file : str
+        Path where the mean-energy file will be written.
+
+    Produces
+    --------
+    A text file with columns:
+        Zenith(deg)   Azimuth(deg)   MeanEnergy(GeV)
+    """
+
+    results = []
+
+    with open(grid_file, 'r') as f:
+        lines = f.readlines()
+
+    current_zenith = None
+    current_azimuth = None
+    energies = []
+    intensities = []
+
+    for line in lines:
+        line = line.strip()
+
+        if not line or line.startswith("Energy"):
+            continue
+
+        if line.startswith("Zenith="):
+            # Process previous angle bin
+            if energies and np.sum(intensities) > 0:
+                energies_arr = np.array(energies)
+                intensities_arr = np.array(intensities)
+
+                norm_int = intensities_arr / np.trapz(intensities_arr, energies_arr)
+                mean_E_MeV = np.trapz(energies_arr * norm_int, energies_arr)
+                mean_E_GeV = mean_E_MeV / 1000.0
+
+                results.append((current_zenith, current_azimuth, mean_E_GeV))
+
+            # Parse new angles
+            parts = line.split(", ")
+            current_zenith = float(parts[0].split("=")[1])
+            az_str = parts[1].split("=")[1]
+            current_azimuth = None if az_str == "None" else float(az_str)
+
+            energies = []
+            intensities = []
+
+        else:
+            try:
+                e, I = line.split()
+                energies.append(float(e))
+                intensities.append(float(I))
+            except ValueError:
+                pass
+
+    # Process the last section
+    if energies and np.sum(intensities) > 0:
+        energies_arr = np.array(energies)
+        intensities_arr = np.array(intensities)
+        norm_int = intensities_arr / np.trapz(intensities_arr, energies_arr)
+        mean_E_MeV = np.trapz(energies_arr * norm_int, energies_arr)
+        mean_E_GeV = mean_E_MeV / 1000.0
+        results.append((current_zenith, current_azimuth, mean_E_GeV))
+
+    # Write final output
+    with open(output_file, "w") as fout:
+        fout.write("Zenith(degrees)\tAzimuth(degrees)\tMeanEnergy(GeV)\n")
+        for zen, az, E in results:
+            az_str = "None" if az is None else f"{az:.4f}"
+            fout.write(f"{zen:.4f}\t{az_str}\t{E:.4f}\n")
