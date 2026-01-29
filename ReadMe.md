@@ -7,7 +7,7 @@ This project uses [Geant4](https://geant4.web.cern.ch/) to simulate muon-induced
 
 ## Project Overview
 
-The simulation models cosmic muons penetrating an underground laboratory situated within a rock hemisphere. The lab geometry consists of a 3×5×3 meter cavity. Muons are sampled from realistic angular and energy distributions, and secondary particles created through muon interactions in the surrounding rock are tracked as they enter the laboratory space.
+The simulation models cosmic muons penetrating an underground laboratory situated within a rock hemisphere. The lab geometry consists of a 3.05×5.2×3.05 meter cavity. Muons are sampled from realistic angular and energy distributions, and secondary particles created through muon interactions in the surrounding rock are tracked as they enter the laboratory space.
 
 ### Key Features
 
@@ -28,11 +28,14 @@ muon-induced-secondaries/
 │   ├── Mountain_underground_mean_energies.txt
 │   ├── Mountain_underground_intensities_dd.txt  
 │   ├── Mountain_underground_flux_grid.txt
-│   └── example_mountain_profile.txt
+|   ├── example_mountain_profile.txt
+│   └── ....
+|   
 ├── macros/                         # Geant4 macro files
 ├── secondaries/                    # Output directory
 │   └── secondary_data/
-│       └── escaped_secondaries.csv
+│       └── escaped_secondaries_[LabName].csv
+├── Rock Composition Data/                         # contains chemical rock composition txt files for different labs
 ├── main.cc                         # Main program entry point
 ├── CMakeLists.txt                  # Build configuration
 ├── calculate_e_sampling.py         # Python preprocessing script
@@ -127,9 +130,9 @@ Phase 2: Generate Mean Energies
 
 After copying the files, the script will:
 
-Process the flux grid to calculate angle-dependent mean energies
+Process the flux grid to calculate angle-dependent mean energies or angle-dependent CDFs for energy sampling
 
-Create ```[LabName]_underground_mean_energies.txt``` in the energy_sampling/ directory
+Create ```[LabName]_underground_mean_energies.txt``` or ```[LabName]_underground_energy_CDFs.txt```in the energy_sampling/ directory
 
 Phase 3: Validation (Optional)
 
@@ -171,16 +174,16 @@ The laboratory cavity and rock hemisphere dimensions are defined in two files an
 
 **DetectorConstruction.cc**:
 ```cpp
-G4double labX = 3.0 / 2. * m;  // Half-width in X
-G4double labY = 5.0 / 2. * m;  // Half-width in Y  
-G4double labZ = 3.0 / 2. * m;  // Half-height in Z
+G4double labX = 3.05 / 2. * m;  // Half-width in X
+G4double labY = 5.2 / 2. * m;  // Half-width in Y  
+G4double labZ = 3.05 / 2. * m;  // Half-height in Z
 ```
 
 **SteppingAction.cc**:
 ```cpp
-G4double labX = 3.0 / 2.0;     // Half-width in X (meters)
-G4double labY = 5.0 / 2.0;     // Half-width in Y (meters)
-G4double labZ = 3.0;           // Height in Z (meters)
+G4double labX = 3.05 / 2.0;     // Half-width in X (meters)
+G4double labY = 5.2 / 2.0;     // Half-width in Y (meters)
+G4double labZ = 3.05;           // Height in Z (meters)
 ```
 
 ### Rock and World Geometry
@@ -195,12 +198,13 @@ G4double outerRadiusRock = 8.3 * m;  // Rock hemisphere radius
 
 Replace files in `energy_sampling/` with your own data:
 - `Mountain_underground_mean_energies.txt` - Angle-dependent mean energies
+- `Mountain_underground_energy_CDFs.txt` - Angle-dependent energy CDFs for more accurate sampling
 - `Mountain_underground_intensities_dd.txt` - Angular intensity distribution
 - `Mountain_underground_flux_grid.txt` - Full energy-angle flux grid
 - `example_mountain_profile.txt` - mountain profile grid required by MUTE: (Theta, Azimuth, Slant Depth)
 
-When using custom data files, ensure you update the `PrimaryGeneratorAction.cc` file with the correct intensity and mean energy file names. Please look at the included example files to ensure your formatting is correct.
-
+When using custom data files, ensure you update the `PrimaryGeneratorAction.cc` file with the correct intensity and energy file names. Please look at the included example files to ensure your formatting is correct.
+More detailed information on how set files and other observables can be found in [ReadMe](https://github.com/keblb1dk/muon-induced-secondaries/blob/main/src/ReadMe.md).
 
 ## Troubleshooting
 
