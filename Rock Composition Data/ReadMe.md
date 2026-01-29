@@ -2,15 +2,15 @@ This folder contains a set of rock composition data for several underground labs
 #Element Symbol  Mass Fraction
 
 Ex:
-# CJPL Rock Composition
-# Density: 2.8 g/cm3
+-CJPL Rock Composition
+-Density: 2.8 g/cm3
 
-C 0.09590959
-O 0.46424642
-Na 0.00010002
-Mg 0.1150115
-Al 0.00150015
-Si 0.00190019
-K 0.00070007
-Ca 0.31963196
-Fe 0.0010001
+-C 0.09590959
+-O 0.46424642
+-Na 0.00010002
+-Mg 0.1150115
+-Al 0.00150015
+-Si 0.00190019
+-K 0.00070007
+-Ca 0.31963196
+-Fe 0.0010001
