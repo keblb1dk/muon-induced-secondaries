@@ -1,0 +1,13 @@
+# set lab name for output file
+#/detector/setLabName default
+
+/primary/useMeanSampling false # true is the default
+# exe loads preset CDF file, but can be changed manually in command line
+#/primary/setCDFEnergyFile Test_Mountain_underground_energy_CDFs.txt
+
+# can also manually set the angular file
+#/primary/setAngularFile Test_Mountain_underground_intensities_dd.txt
+
+#/primary/setEnergyThreshold 0.0 # 0.0 is default...default units are GeV
+/run/initialize
+/run/beamOn 10000

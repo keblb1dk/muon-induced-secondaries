@@ -1,0 +1,17 @@
+# macro to run simulations for KamLand (Kamioka)
+# set lab name for output file
+/detector/setLabName kamland
+
+# set the density and composition
+/detector/setRockDensity 2.7
+/detector/setRockComp kamioika_rock.txt
+
+#set the correct smapling files
+/primary/useMeanSampling false # use the CDF energy sampling method
+/primary/setAngularFile Geant4_KamLand_underground_intensities_dd.txt
+/primary/setCDFEnergyFile Geant4_KamLand_underground_energy_CDFs.txt
+
+#/primary/setEnergyThreshold 0.0 # default is 0.0
+
+/run/initialize
+/run/beamOn 1000
