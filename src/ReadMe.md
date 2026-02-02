@@ -29,7 +29,7 @@ PrimaryGeneratorAction allows you to set an energy threshold, change from mean t
   When you change between mean and CDF sampling you **must** update the sampling files accordingly.
 
 - set the angular sampling file
-  ```/detector/setAngularFile angular_file.txt```
+  ```/primary/setAngularFile angular_file.txt```
 
 - set the mean energy sampling file
   ```/primary/setMeanEnergyFile mean_energy_file.txt```
