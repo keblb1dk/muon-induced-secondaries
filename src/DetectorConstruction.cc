@@ -234,14 +234,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct() {
 
 
 
-
-    G4double labX = 3.049999 / 2. * m;
-    G4double labY = 5.199999 / 2. * m;
-    G4double labZ = 3.049999 / 2. * m;
-
-    G4VSolid* b3S = new G4Box("lab", labX, labY, labZ);
+    G4double offset = 1e-6 * m;
+    
+    G4double labX = 3.05 / 2. * m;
+    G4double labY = 5.2 / 2. * m;
+    G4double labZ = 3.05 / 2. * m;
+    
+    G4VSolid* b3S = new G4Box("lab", labX - offset, labY - offset, labZ - offset);
     G4LogicalVolume* boxLV = new G4LogicalVolume(b3S, air, "labLV");
-    G4VPhysicalVolume* boxPV = new G4PVPlacement(0, G4ThreeVector(0, 0, labZ), boxLV, "labPV", worldLV, false, 0, true);
+    G4VPhysicalVolume* boxPV = new G4PVPlacement(0, G4ThreeVector(0, 0, labZ - offset), boxLV, "labPV", worldLV, false, 0, true);
     boxLV->SetVisAttributes(visBlue);
 
     // Dimensions for the rectangular shell
