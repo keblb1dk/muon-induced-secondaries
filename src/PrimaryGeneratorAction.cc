@@ -103,7 +103,7 @@ void LoadEnergyCDFs(const std::string& filename) {
 
     G4cout << "Loaded energy CDFs for "
         << energy_cdf_map.size()
-        << " angular bins." << G4endl;
+        << " angular bins from file" << filename << G4endl;
 }
 
 // Function to read the mean energy data file
@@ -135,7 +135,7 @@ void LoadEnergyData(const std::string& filename) {
 
     G4cout << "Loaded mean energy data for "
         << energy_data.size()
-        << " angular bins." << G4endl;
+        << " angular bins for file" << filename << G4endl;
 }
 
 // Function to find the closest matching mean energy for given angles
@@ -286,7 +286,7 @@ void LoadMuonDataAndComputeCDF(const std::string& filename) {
 
     G4cout << "Loaded angular distribution with "
         << muon_data.size()
-        << " angular bins." << G4endl;
+        << " angular bins for file" << filename << G4endl;
 }
 
 // Function to sample from the angular CDF
@@ -348,7 +348,7 @@ std::pair<double, double> SampleAnglesFromCDF() {
 
 
 //G4String samplingDir = "./energy sampling/";
-G4String samplingDir = "../../energy sampling/";
+G4String samplingDir = "../../energy_sampling/";
 PrimaryGeneratorAction::PrimaryGeneratorAction()
     : G4VUserPrimaryGeneratorAction(),
     fParticleGun(nullptr),
@@ -416,11 +416,11 @@ void PrimaryGeneratorAction::SetUseMeanSampling(G4bool val) {
 
     // Load the appropriate data file if switching modes
     if (val && energy_data.empty()) {
-        G4cout << "Loading mean energy data..." << G4endl;
+        G4cout << "Loading mean energy data from file" << fMeanEnergyFile << G4endl;
         LoadEnergyData(samplingDir + fMeanEnergyFile);
     }
     else if (!val && energy_cdf_map.empty()) {
-        G4cout << "Loading CDF energy data..." << G4endl;
+        G4cout << "Loading CDF energy data from " << fCDFEnergyFile << G4endl;
         LoadEnergyCDFs(samplingDir + fCDFEnergyFile);
     }
 
