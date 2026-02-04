@@ -45,7 +45,7 @@ muon-induced-secondaries/
 
 ## Prerequisites
 
-- **Geant4** (version 10.7 or higher recommended)
+- **Geant4** (version 11.2 or higher recommended)
 - **CMake** (version 3.5 or higher)
 - **C++ compiler** with C++11 support
 - **Python 3** with NumPy and SciPy
