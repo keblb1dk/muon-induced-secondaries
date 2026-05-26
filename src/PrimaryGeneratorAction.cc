@@ -270,11 +270,9 @@ void LoadMuonDataAndComputeCDF(const std::string& filename) {
         MuonData data;
         data.zenith = zenith;
         data.azimuth = azimuth;
-        G4double theta_rad = zenith * CLHEP::pi / 180.0;
-        G4double weighted_intensity = intensity * std::sin(theta_rad);
-        data.intensity = weighted_intensity;
+        data.intensity = intensity;
         muon_data.push_back(data);
-        total_intensity += weighted_intensity;
+        total_intensity += intensity;
     }
     infile.close();
 
