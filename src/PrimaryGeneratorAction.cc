@@ -141,7 +141,7 @@ void LoadEnergyData(const std::string& filename) {
 // Function to find the closest matching mean energy for given angles
 double FindClosestMeanEnergy(double zenith, double azimuth) {
     double minDistance = 1e10;
-    double closestEnergy = 288.0; // Default energy
+    double closestEnergy = 288.0; // Default energy...change to mean energy of location
 
     // Normalize azimuth to [0, 360)
     while (azimuth >= 360.0) azimuth -= 360.0;
@@ -213,7 +213,7 @@ double SampleEnergyFromCDF(double zenith, double azimuth) {
         if (it == energy_cdf_map.end()) {
             G4cerr << "Warning: No CDF found for zenith=" << zenith
                 << ", azimuth=" << azimuth << ". Using default energy." << G4endl;
-            return 288.0 * GeV;
+            return 288.0 * GeV; // Default energy....change to mean energy of location
         }
     }
 
@@ -270,9 +270,11 @@ void LoadMuonDataAndComputeCDF(const std::string& filename) {
         MuonData data;
         data.zenith = zenith;
         data.azimuth = azimuth;
-        data.intensity = intensity;
+        G4double theta_rad = zenith * CLHEP::pi / 180.0;
+        G4double weighted_intensity = intensity * std::sin(theta_rad);
+        data.intensity = weighted_intensity;
         muon_data.push_back(data);
-        total_intensity += intensity;
+        total_intensity += weighted_intensity;
     }
     infile.close();
 
@@ -474,10 +476,19 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
         particle_energy = SampleEnergyFromCDF(sampled_zenith_deg, sampled_azimuth_deg);
     }
 
-    if (particle_energy >= fEnergyThreshold) {
-        fParticleGun->SetParticleEnergy(particle_energy);
+    //if (particle_energy >= fEnergyThreshold) {
+     //   fParticleGun->SetParticleEnergy(particle_energy);
         //G4cout << "Energy: " << particle_energy / GeV << " GeV" << G4endl;
+    //}
+    //.....resample muon energy if below threshold
+    while (particle_energy < fEnergyThreshold) {
+    sampled_angles  = SampleAnglesFromCDF();
+    particle_energy = fUseMeanSampling
+        ? FindClosestMeanEnergy(sampled_angles.first, sampled_angles.second)
+        : SampleEnergyFromCDF (sampled_angles.first, sampled_angles.second);
     }
+    fParticleGun->SetParticleEnergy(particle_energy);
+    
     // Convert angles to radians for direction calculation
     double sampled_zenith = sampled_zenith_deg * CLHEP::pi / 180.0;
     double sampled_azimuth = sampled_azimuth_deg * CLHEP::pi / 180.0;
